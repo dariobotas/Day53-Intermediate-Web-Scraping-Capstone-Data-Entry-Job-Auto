@@ -1,19 +1,39 @@
-from bs4 import BeautifulSoup
 import requests
-from selenium_firefox_run import webdriver
+from bs4 import BeautifulSoup
+from selenium import webdriver
 import time
 
 from selenium.webdriver.common.by import By
 from selenium.webdriver.firefox.options import Options
-from selenium.webdriver.firefox.firefox_binary import FirefoxBinary
+from selenium.webdriver.firefox.service import Service
 
-LINK_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSfl667pX7iFkus-FS5lE7_6_1_txwssqVXEK7kvjn_7W4tUYw/viewform"#"https://forms.gle/miykx4bZiPoMHHwi8"
+
+LINK_FORM = "https://docs.google.com/forms/d/e/1FAIpQLSfl667pX7iFkus-FS5lE7_6_1_txwssqVXEK7kvjn_7W4tUYw/viewform"
+#"https://forms.gle/miykx4bZiPoMHHwi8"
 header = {
     "User-Agent": "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:109.0) Gecko/20100101 Firefox/119.0",
     "Accept-Language": "en-US,en;q=0.5"
 }
 
-response = requests.get("https://www.zillow.com/homes/San-Francisco,"
+#response = requests.get("https://www.zillow.com/homes/San-Francisco,"
+#                        "-CA_rb/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22usersSearchTerm%22%3A%22San"
+#                        "%20Francisco%2C%20CA%22%2C%22mapBounds%22%3A%7B%22west%22%3A-122.55177535009766%2C%22east%22"
+#                        "%3A-122.31488264990234%2C%22south%22%3A37.69926912019228%2C%22north%22%3A37.851235694487485"
+#                        "%7D%2C%22regionSelection%22%3A%5B%7B%22regionId%22%3A20330%2C%22regionType%22%3A6%7D%5D%2C"
+#                        "%22isMapVisible%22%3Atrue%2C%22filterState%22%3A%7B%22fr%22%3A%7B%22value%22%3Atrue%7D%2C"
+#                        "%22fsba%22%3A%7B%22value%22%3Afalse%7D%2C%22fsbo%22%3A%7B%22value%22%3Afalse%7D%2C%22nc%22"
+#                        "%3A%7B%22value%22%3Afalse%7D%2C%22cmsn%22%3A%7B%22value%22%3Afalse%7D%2C%22auc%22%3A%7B"
+#                        "%22value%22%3Afalse%7D%2C%22fore%22%3A%7B%22value%22%3Afalse%7D%2C%22pmf%22%3A%7B%22value%22"
+#                        "%3Afalse%7D%2C%22pf%22%3A%7B%22value%22%3Afalse%7D%2C%22mp%22%3A%7B%22max%22%3A3000%7D%2C"
+#                        "%22price%22%3A%7B%22max%22%3A872627%7D%2C%22beds%22%3A%7B%22min%22%3A1%7D%7D%2C"
+#                        "%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A12%7D", headers=header)
+
+options1 = Options()
+# options.binary = FirefoxBinary(r'/snap/bin/geckodriver')
+# options.add_argument("--headless")
+driverService1 = Service(r'/snap/bin/geckodriver')
+browser = webdriver.Firefox(service=driverService1, options=options1)
+browser.get("https://www.zillow.com/homes/San-Francisco,"
                         "-CA_rb/?searchQueryState=%7B%22pagination%22%3A%7B%7D%2C%22usersSearchTerm%22%3A%22San"
                         "%20Francisco%2C%20CA%22%2C%22mapBounds%22%3A%7B%22west%22%3A-122.55177535009766%2C%22east%22"
                         "%3A-122.31488264990234%2C%22south%22%3A37.69926912019228%2C%22north%22%3A37.851235694487485"
@@ -24,9 +44,11 @@ response = requests.get("https://www.zillow.com/homes/San-Francisco,"
                         "%22value%22%3Afalse%7D%2C%22fore%22%3A%7B%22value%22%3Afalse%7D%2C%22pmf%22%3A%7B%22value%22"
                         "%3Afalse%7D%2C%22pf%22%3A%7B%22value%22%3Afalse%7D%2C%22mp%22%3A%7B%22max%22%3A3000%7D%2C"
                         "%22price%22%3A%7B%22max%22%3A872627%7D%2C%22beds%22%3A%7B%22min%22%3A1%7D%7D%2C"
-                        "%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A12%7D", headers=header)
-
-data = response.text
+                        "%22isListVisible%22%3Atrue%2C%22mapZoom%22%3A12%7D")
+input("If loaded, click enter")
+data = browser.page_source#response.text
+time.sleep(5)
+browser.quit()
 print(data)
 soup = BeautifulSoup(data, "html.parser")
 
@@ -59,18 +81,17 @@ for element in all_price_elements:
     finally:
         all_prices.append(price)
 
-options = Options()
-#service = service.Service(executable=r'/snap/bin/geckodriver')
-options.binary = FirefoxBinary(r'/snap/bin/firefox.geckodriver')
-#options.set_preference("browser.download.folderList",2)
-#options.set_preference("browser.download.manager.showWhenStarting", False)
-#options.set_preference("browser.download.dir", "/Data")
-#options.add_argument("-headless")
 # Create Spreadsheet using Google Form
 # Substitute your own path here 👇
-driver = webdriver.Firefox(options=options)
+options = Options()
+# options.binary = FirefoxBinary(r'/snap/bin/geckodriver')
+# options.add_argument("--headless")
+driverService = Service(r'/snap/bin/geckodriver')
+driver = webdriver.Firefox(service=driverService, options=options)
 
+print(len(all_links))
 for n in range(len(all_links)):
+    # Substitute your own Google Form URL here 👇
     driver.get(LINK_FORM)
 
     time.sleep(2)
@@ -87,4 +108,3 @@ for n in range(len(all_links)):
     price.send_keys(all_prices[n])
     link.send_keys(all_links[n])
     submit_button.click()
-
